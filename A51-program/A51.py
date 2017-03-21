@@ -1,8 +1,10 @@
 import sys
 import copy
 
-def testBit(int_type, offset):
-	
+def testBit(int_type, offset,size):
+	offset = offset - (size - int_type.bit_length())
+	if(offset < 0):
+		return 0
 	mask = 1 << offset
 	
 	val =  (int_type & mask)
@@ -25,8 +27,8 @@ def xorOffsets(int_type,offset,size,key,key_offeset):
 		i = (size-(i + 1))
 		
 
-		res ^= testBit(val,i)
-	res ^= testBit(key,key_offeset)
+		res ^= testBit(val,i,val.bit_length())
+	res ^= testBit(key,key_offeset,key.bit_length())
 	return res
 
 
@@ -58,7 +60,7 @@ def intializeKey(data,offset,data_size,key,key_size):
 
 
 def findMajorityBit(data1,data2,data3):
-	return ((testBit(data1,8) & testBit(data2,10)) | (testBit(data1,8) & testBit(data3,10)) | (testBit(data2,10) & testBit(data3,10)) )
+	return ((testBit(data1,8,19) & testBit(data2,10,22)) | (testBit(data1,8,19) & testBit(data3,10,23)) | (testBit(data2,10,22) & testBit(data3,10,23)) )
 
 
 R1 = R2 = R3 = 0
@@ -90,5 +92,61 @@ print(bin(data1))
 print(bin(data2))
 print(bin(data3))
 
+#step 3
+
 majorityBit = findMajorityBit(data1,data2,data3)
 print(majorityBit)
+
+for i in range(0,100):
+	pass
+	#print(i)
+	majorityBit = findMajorityBit(data1,data2,data3)
+	#print(majorityBit)
+
+	if(majorityBit == (testBit(data1,8,19))):
+		#print("1 active")
+		data1 = LSFR(data1,[13,16,17,18],19,0,1)
+
+	if(majorityBit == (testBit(data2,10,22))):
+		#print("2 active")
+		data2 = LSFR(data2,[20,21],22,0,1)
+
+	if(majorityBit == (testBit(data3,10,23))):
+		#print("3 active")
+		data3 = LSFR(data3,[7,20,21,22],23,0,1)
+
+
+print(bin(data1))
+print(bin(data2))
+print(bin(data3))
+
+#step 4 generate the key stream
+
+finalKeyStr = ""
+finalKey = 0
+for i in range(0,228):
+	lastBitXor = ((data1 & 1) ^ (data2 & 1) ^ (data3 & 1))
+	finalKey = finalKey << 1
+	finalKey = finalKey | lastBitXor
+	
+	finalKeyStr = finalKeyStr + str(lastBitXor)
+	majorityBit = findMajorityBit(data1,data2,data3)
+
+	if(majorityBit == (testBit(data1,8,19))):
+		#print("1 active")
+		data1 = LSFR(data1,[13,16,17,18],19,0,1)
+
+	if(majorityBit == (testBit(data2,10,22))):
+		#print("2 active")
+		data2 = LSFR(data2,[20,21],22,0,1)
+
+	if(majorityBit == (testBit(data3,10,23))):
+		#print("3 active")
+		data3 = LSFR(data3,[7,20,21,22],23,0,1)
+
+plainText = int(sys.argv[1])
+print((finalKeyStr))
+print(bin(finalKey))
+
+encryptedText = finalKey ^ plainText
+print(bin(encryptedText))
