@@ -26,10 +26,3 @@ decryption. Probability[Enc(Dec(m,k),k) = m] = 1.
 Ref: https://en.wikipedia.org/wiki/A5/1
 Tentative deadline : 15 th March, 2017.
 2)Review and practical performance evaluation of various attacks on A5/1.
-Ref:
-•Timo Gendrullis et al., “A Real-World Attack Breaking A5/1 within Hours”, Horst Görtz
-Institute for IT-Security, Ruhr-University Bochum, Germany.
-• Eli Biham et al., “Cryptanalysis of the A5/1 GSM Stream Cipher”.
-• Jay Shah et al., “A New Guess-and-Determine Attack on the A5/1 Stream Cipher”, Indian
-Institute of Science Education and Research, Pune, India.
-Tentative deadline : 20 th March, 2017.
