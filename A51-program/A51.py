@@ -76,9 +76,7 @@ data1 = intializeKey(data1,[13,16,17,18],19,key,64)
 data2 = intializeKey(data2,[20,21],22,key,64)
 
 data3 = intializeKey(data3,[7,20,21,22],23,key,64)
-print(bin(data1))
-print(bin(data2))
-print(bin(data3))
+
 
 #step 2
 #frameCounter = 1110101011001111001011
@@ -88,14 +86,12 @@ data1 = intializeKey(data1,[13,16,17,18],19,frameCounter,22)
 data2 = intializeKey(data2,[20,21],22,frameCounter,22)
 data3 = intializeKey(data3,[7,20,21,22],23,frameCounter,22)
 
-print(bin(data1))
-print(bin(data2))
-print(bin(data3))
+
 
 #step 3
 
 majorityBit = findMajorityBit(data1,data2,data3)
-print(majorityBit)
+
 
 for i in range(0,100):
 	pass
@@ -116,9 +112,7 @@ for i in range(0,100):
 		data3 = LSFR(data3,[7,20,21,22],23,0,1)
 
 
-print(bin(data1))
-print(bin(data2))
-print(bin(data3))
+
 
 #step 4 generate the key stream
 
@@ -144,9 +138,29 @@ for i in range(0,228):
 		#print("3 active")
 		data3 = LSFR(data3,[7,20,21,22],23,0,1)
 
-plainText = int(sys.argv[1])
+print("Generated key is:")
 print((finalKeyStr))
-print(bin(finalKey))
+print("\n")
+fileName = sys.argv[1]
+with open(fileName, 'r') as myfile:
+    plainText = myfile.read()
+
+
+plainTextByte = str.encode(plainText)
+
+
+
+
+plainText = int.from_bytes(plainTextByte,byteorder = sys.byteorder)
+
+print("File content is:")
+print(plainText)
+print("\n")
 
 encryptedText = finalKey ^ plainText
-print(bin(encryptedText))
+print("Encrypted plain text is:")
+print((encryptedText))
+print("\n")
+decrypt = encryptedText ^ finalKey
+print("Decrypted plaintext value is:")
+print(decrypt)
