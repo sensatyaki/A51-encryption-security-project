@@ -1,0 +1,70 @@
+body
+{
+    font-family: sans-serif;
+    font-size: 12px;
+}
+
+h2
+{
+    font-size: 15px;
+    margin: 5px 0 5px 0;
+}
+
+input[type=text]
+{
+    border: 1px solid black;
+    text-align: center;
+    width: 27px;
+}
+
+td
+{
+    text-align: center;
+}
+
+td.maj
+{
+    font-weight: bold;
+    color: #FF0000;
+}
+
+td.xor
+{
+    font-weight: bold;
+    color: #FFA500;
+}
+
+input.maj
+{
+    background-color: #FF7E7E;
+}
+
+input.xor
+{
+    background-color: #FFA500;
+}
+
+div.highlighted
+{
+    background: #FFD18D;
+    border: 1px dashed black;
+    padding: 10px 10px 10px 10px;
+    margin: 0 0 10px 0;
+    width: 700px;
+}
+
+div.registers
+{
+    background: #FFE9C0 url('./background.png') no-repeat;
+    background-position: 7px 5px;
+    border: 1px dashed black;
+    padding: 10px;
+    margin: 10px 0 10px 0;
+    width: 1100px;
+}
+
+div.register
+{
+
+}
+

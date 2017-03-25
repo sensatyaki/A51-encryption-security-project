@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>A5/1 Simulator</title>
+    <meta charset="UTF-8" />
+
+    <link rel="stylesheet" href="./resources/styles.css">
+    <script src="./resources/jquery-1.10.2.min.js"></script>
+
+    <script>
+
+        // The example cipher key (64 bit)
+        key = [ 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0,
+                0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 0,
+		0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1 ]
+
+    </script>
+
+</head>
+
+<body>
+
+    <h1>A5/1 Simulator</h1>
+
+    <div class="highlighted">
+
+        <h2>Session Key + Frame counter (64+22 Bit)</h2>
+        <p id="key"></p>
+
+        <input type="submit" id="initializeKeyButton" value="(1) Initialization phase &raquo;" />
+        <input type="submit" id="initializeRegisterButton" value="(2) Warm-up phase &raquo;" disabled="disabled" />
+        <span id="registerInitializationCount">0/100</span>
+        <input type="submit" id="generateStreamButton" value="(3) Generate keystream &raquo;" disabled="disabled" />
+
+        <p style="color: blue;">maj(<span style="color: red;">x<sub>8</sub></span>, <span style="color: red;">y<sub>10</sub></span>, <span style="color: red;">z<sub>10</sub></span>) = maj(<span style="color: red;" id="maj_x">0</span>, <span style="color: red;" id="maj_y">0</span>, <span style="color: red;" id="maj_z">0</span>)
+        = <span id="majResult" style="font-weight: bold;">0</span></p>
+
+    </div>
+
+    <div class="highlighted">
+        <h2>Keystream (<span id="generatedStreamCount">0</span> Bits Generated )</h2>
+        <p id="keystream"></p>
+    </div>
+
+    <div class="registers">
+
+        <div class="register" style="margin: 0 0 44px 0;">
+
+            <h2 id="r1">Register 1</h2>
+
+            <table>
+
+                <tr>
+                    <td><input type="text" value="0" name="r1_0"></td>
+                    <td><input type="text" value="0" name="r1_1"></td>
+                    <td><input type="text" value="0" name="r1_2"></td>
+                    <td><input type="text" value="0" name="r1_3"></td>
+                    <td><input type="text" value="0" name="r1_4"></td>
+                    <td><input type="text" value="0" name="r1_5"></td>
+                    <td><input type="text" value="0" name="r1_6"></td>
+                    <td><input type="text" value="0" name="r1_7"></td>
+                    <td><input type="text" value="0" name="r1_8" class="maj"></td>
+                    <td><input type="text" value="0" name="r1_9"></td>
+                    <td><input type="text" value="0" name="r1_10"></td>
+                    <td><input type="text" value="0" name="r1_11"></td>
+                    <td><input type="text" value="0" name="r1_12"></td>
+                    <td><input type="text" value="0" name="r1_13" class="xor"></td>
+                    <td><input type="text" value="0" name="r1_14"></td>
+                    <td><input type="text" value="0" name="r1_15"></td>
+                    <td><input type="text" value="0" name="r1_16" class="xor"></td>
+                    <td><input type="text" value="0" name="r1_17" class="xor"></td>
+                    <td><input type="text" value="0" name="r1_18" class="xor"></td>
+                </tr>
+
+                <tr>
+                    <td>x<sub>0</sub></td>
+                    <td>x<sub>1</sub></td>
+                    <td>x<sub>2</sub></td>
+                    <td>x<sub>3</sub></td>
+                    <td>x<sub>4</sub></td>
+                    <td>x<sub>5</sub></td>
+                    <td>x<sub>6</sub></td>
+                    <td>x<sub>7</sub></td>
+                    <td class="maj">x<sub>8</sub></td>
+                    <td>x<sub>9</sub></td>
+                    <td>x<sub>10</sub></td>
+                    <td>x<sub>11</sub></td>
+                    <td>x<sub>12</sub></td>
+                    <td class="xor">x<sub>13</sub></td>
+                    <td>x<sub>14</sub></td>
+                    <td>x<sub>15</sub></td>
+                    <td class="xor">x<sub>16</sub></td>
+                    <td class="xor">x<sub>17</sub></td>
+                    <td class="xor">x<sub>18</sub></td>
+                </tr>
+
+            </table>
+
+        </div>
+
+        <div class="register" style="margin: 0 0 44px 0;">
+
+            <h2 id="r2">Register 2</h2>
+
+            <table>
+
+                <tr>
+                    <td><input type="text" value="0" name="r2_0"></td>
+                    <td><input type="text" value="0" name="r2_1"></td>
+                    <td><input type="text" value="0" name="r2_2"></td>
+                    <td><input type="text" value="0" name="r2_3"></td>
+                    <td><input type="text" value="0" name="r2_4"></td>
+                    <td><input type="text" value="0" name="r2_5"></td>
+                    <td><input type="text" value="0" name="r2_6"></td>
+                    <td><input type="text" value="0" name="r2_7"></td>
+                    <td><input type="text" value="0" name="r2_8"></td>
+                    <td><input type="text" value="0" name="r2_9"></td>
+                    <td><input type="text" value="0" name="r2_10" class="maj"></td>
+                    <td><input type="text" value="0" name="r2_11"></td>
+                    <td><input type="text" value="0" name="r2_12"></td>
+                    <td><input type="text" value="0" name="r2_13"></td>
+                    <td><input type="text" value="0" name="r2_14"></td>
+                    <td><input type="text" value="0" name="r2_15"></td>
+                    <td><input type="text" value="0" name="r2_16"></td>
+                    <td><input type="text" value="0" name="r2_17"></td>
+                    <td><input type="text" value="0" name="r2_18"></td>
+                    <td><input type="text" value="0" name="r2_19"></td>
+                    <td><input type="text" value="0" name="r2_20" class="xor"></td>
+                    <td><input type="text" value="0" name="r2_21" class="xor"></td>
+                </tr>
+
+                <tr>
+                    <td>y<sub>0</sub></td>
+                    <td>y<sub>1</sub></td>
+                    <td>y<sub>2</sub></td>
+                    <td>y<sub>3</sub></td>
+                    <td>y<sub>4</sub></td>
+                    <td>y<sub>5</sub></td>
+                    <td>y<sub>6</sub></td>
+                    <td>y<sub>7</sub></td>
+                    <td>y<sub>8</sub></td>
+                    <td>y<sub>9</sub></td>
+                    <td class="maj">y<sub>10</sub></td>
+                    <td>y<sub>11</sub></td>
+                    <td>y<sub>12</sub></td>
+                    <td>y<sub>13</sub></td>
+                    <td>y<sub>14</sub></td>
+                    <td>y<sub>15</sub></td>
+                    <td>y<sub>16</sub></td>
+                    <td>y<sub>17</sub></td>
+                    <td>y<sub>18</sub></td>
+                    <td>y<sub>19</sub></td>
+                    <td class="xor">y<sub>20</sub></td>
+                    <td class="xor">y<sub>21</sub></td>
+                </tr>
+
+            </table>
+
+        </div>
+
+        <div class="register" style="margin: 0 0 60px 0;">
+
+            <h2 id="r3">Register 3</h2>
+
+            <table>
+
+                <tr>
+                    <td><input type="text" value="0" name="r3_0"></td>
+                    <td><input type="text" value="0" name="r3_1"></td>
+                    <td><input type="text" value="0" name="r3_2"></td>
+                    <td><input type="text" value="0" name="r3_3"></td>
+                    <td><input type="text" value="0" name="r3_4"></td>
+                    <td><input type="text" value="0" name="r3_5"></td>
+                    <td><input type="text" value="0" name="r3_6"></td>
+                    <td><input type="text" value="0" name="r3_7" class="xor"></td>
+                    <td><input type="text" value="0" name="r3_8"></td>
+                    <td><input type="text" value="0" name="r3_9"></td>
+                    <td><input type="text" value="0" name="r3_10" class="maj"></td>
+                    <td><input type="text" value="0" name="r3_11"></td>
+                    <td><input type="text" value="0" name="r3_12"></td>
+                    <td><input type="text" value="0" name="r3_13"></td>
+                    <td><input type="text" value="0" name="r3_14"></td>
+                    <td><input type="text" value="0" name="r3_15"></td>
+                    <td><input type="text" value="0" name="r3_16"></td>
+                    <td><input type="text" value="0" name="r3_17"></td>
+                    <td><input type="text" value="0" name="r3_18"></td>
+                    <td><input type="text" value="0" name="r3_19"></td>
+                    <td><input type="text" value="0" name="r3_20" class="xor"></td>
+                    <td><input type="text" value="0" name="r3_21" class="xor"></td>
+                    <td><input type="text" value="0" name="r3_22" class="xor"></td>
+                </tr>
+
+                <tr>
+                    <td>z<sub>0</sub></td>
+                    <td>z<sub>1</sub></td>
+                    <td>z<sub>2</sub></td>
+                    <td>z<sub>3</sub></td>
+                    <td>z<sub>4</sub></td>
+                    <td>z<sub>5</sub></td>
+                    <td>z<sub>6</sub></td>
+                    <td class="xor">z<sub>7</sub></td>
+                    <td>z<sub>8</sub></td>
+                    <td>z<sub>9</sub></td>
+                    <td class="maj">z<sub>10</sub></td>
+                    <td>z<sub>11</sub></td>
+                    <td>z<sub>12</sub></td>
+                    <td>z<sub>13</sub></td>
+                    <td>z<sub>14</sub></td>
+                    <td>z<sub>15</sub></td>
+                    <td>z<sub>16</sub></td>
+                    <td>z<sub>17</sub></td>
+                    <td>z<sub>18</sub></td>
+                    <td>z<sub>19</sub></td>
+                    <td class="xor">z<sub>20</sub></td>
+                    <td class="xor">z<sub>21</sub></td>
+                    <td class="xor">z<sub>22</sub></td>
+                </tr>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <div>
+	<b>References:</b> https://sicherheitskritisch.de/files/a51-simulator/ <br>
+	<b>Github link:</b> https://github.com/bastianraschke/a51-cipher-simulator
+    </div>
+
+    <script>
+
+        $(document).ready(function () {
+            resetForms();
+        });
+
+        // Write cipher key to document
+        for (var i = 0; i < key.length; i++)
+        {
+            var htmlCode = '<span id="key_' + i + '">' + key[i] + '</span>';
+
+            // Output a space after 4 bits to get groups
+            if ( (i+1) % 4 == 0 && i > 0 )
+            {
+                $('#key').append(htmlCode + ' ');
+            }
+            else
+            {
+                $('#key').append(htmlCode);
+            }
+        }
+
+        // Manual highlight first element
+        $('#key_0').attr('style', 'font-weight: bold;');
+
+        /*
+         * Dirty implementation of the majority function ;-)
+         *
+         */
+        function maj(x, y, z)
+        {
+            var counter = 0;
+
+            if (x == 1)
+            {
+                counter++;
+            }
+
+            if (y == 1)
+            {
+                counter++;
+            }
+
+            if (z == 1)
+            {
+                counter++;
+            }
+
+            return (counter >= 2) ? 1 : 0;
+        }
+
+        /*
+         * Shift the register 1 one step.
+         * Optional push a new value at the beginning of the array.
+         *
+         */
+        function shiftRegister1(inputValue)
+        {
+            var register = [];
+            var registerLength = 18;
+
+            // Get all values from form inputs
+            for (var i = 0; i <= registerLength; i++)
+            {
+                register.push($('input[name=r1_' + i + ']').val());
+            }
+
+            // XOR operations on register 1
+            var inputValue = inputValue ^ (register[13] ^ register[16] ^ register[17] ^ register[18]);
+
+            // Push new value at the beginning of the array
+            register.unshift(inputValue);
+
+            // Remove last value of the array (=output)
+            var outputValue = register.pop();
+
+            // Set new values to form inputs
+            for (i = 0; i <= registerLength; i++)
+            {
+                $('input[name=r1_' + i + ']').val(register[i])
+            }
+
+            return outputValue;
+        }
+
+        /*
+         * Shift the register 2 one step.
+         * Optional push a new value at the beginning of the array.
+         *
+         */
+        function shiftRegister2(inputValue)
+        {
+            var register = [];
+            var registerLength = 21;
+
+            // Get all values from form inputs
+            for (i = 0; i <= registerLength; i++)
+            {
+                register.push($('input[name=r2_' + i + ']').val());
+            }
+
+            // XOR operations on register 2
+            var inputValue = inputValue ^ (register[20] ^ register[21]);
+
+            // Push new value at the beginning of the array
+            register.unshift(inputValue);
+
+            // Remove last value of the array (=output)
+            var outputValue = register.pop();
+
+            // Set new values to form inputs
+            for (i = 0; i <= registerLength; i++)
+            {
+                $('input[name=r2_' + i + ']').val(register[i])
+            }
+
+            return outputValue;
+        }
+
+        /*
+         * Shift the register 3 one step.
+         * Optional push a new value at the beginning of the array.
+         *
+         */
+        function shiftRegister3(inputValue)
+        {
+            var register = [];
+            var registerLength = 22;
+
+            // Get all values from form inputs
+            for (i = 0; i <= registerLength; i++)
+            {
+                register.push($('input[name=r3_' + i + ']').val());
+            }
+
+            // XOR operations on register 3
+            var inputValue = inputValue ^ (register[7] ^ register[20] ^ register[21] ^ register[22]);
+
+            // Push new value at the beginning of the array
+            register.unshift(inputValue);
+
+            // Remove last value of the array (=output)
+            var outputValue = register.pop();
+
+            // Set new values to form inputs
+            for (i = 0; i <= registerLength; i++)
+            {
+                $('input[name=r3_' + i + ']').val(register[i])
+            }
+
+            return outputValue;
+        }
+
+        var keyBitCount = 0;
+
+        /*
+         * (1)
+         *
+         * Simulates the key initialization process.
+         * The key (64 bit) is pushed to every register.
+         *
+         */
+        $("#initializeKeyButton").click(function()
+        {
+            // Unhighlight current element
+            $('#key_' + keyBitCount).attr('style', 'font-weight: normal;');
+
+            // Highlight next element
+            $('#key_' + (keyBitCount + 1)).attr('style', 'font-weight: bold;');
+
+            // Get value of current key bit
+            var inputValue = $('#key_' + keyBitCount).text();
+
+            // Increment key bit counter
+            keyBitCount++;
+
+            // Key is complete?
+            if ( keyBitCount == 86 )
+            {
+                // Disable this feature
+                $('#initializeKeyButton').prop('disabled', true);
+
+                // Enable next feature
+                $('#initializeRegisterButton').prop('disabled', false);
+
+                // Manual trigger next feature
+                $('#initializeRegisterButton').trigger('click');
+
+                // Manual unhighlight last element
+                $('#key_' + (keyBitCount - 1)).attr('style', 'font-weight: normal;');
+            }
+
+            // Push current cipher key bit to all registers
+            shiftRegister1(inputValue);
+            shiftRegister2(inputValue);
+            shiftRegister3(inputValue);
+
+            // Calculate maj() function and update spans
+            $('#majResult').text(maj($('input[name=r1_8]').val(), $('input[name=r2_10]').val(), $('input[name=r3_10]').val()));
+            $('#maj_x').text($('input[name=r1_8]').val());
+            $('#maj_y').text($('input[name=r2_10]').val());
+            $('#maj_z').text($('input[name=r3_10]').val());
+        });
+
+        var registerInitializationCount = 0;
+
+        /*
+         * (2)
+         *
+         * Simulates the register initialization process.
+         * The cipher key must be initialized to initialize register.
+         *
+         */
+        $("#initializeRegisterButton").click(function()
+        {
+            registerInitializationCount++;
+            $('#registerInitializationCount').text(registerInitializationCount + '/100');
+
+            // Register is initialized?
+            if ( registerInitializationCount == 100 )
+            {
+                // Disable this feature
+                $('#initializeRegisterButton').prop('disabled', true);
+
+                // Enable next feature
+                $('#generateStreamButton').prop('disabled', false);
+            }
+
+            // Calculate maj() function for the current step
+            var majorValueThisStep = maj($('input[name=r1_8]').val(), $('input[name=r2_10]').val(), $('input[name=r3_10]').val());
+
+            // Register 1 is clocked?
+            if ( $('input[name=r1_8]').val() == majorValueThisStep )
+            {
+                // Register 1 will be shifted, so use the futur value
+                var majorValueNextStepR1 = $('input[name=r1_7]').val();
+
+                // Shift clocked register (do not push a value to register; 0 is the neutral element of XOR)
+                shiftRegister1(0);
+            }
+            else
+            {
+                // Register 1 will not be shifted, so use the current value
+                var majorValueNextStepR1 = $('input[name=r1_8]').val();
+            }
+
+            // Register 2 is clocked?
+            if ( $('input[name=r2_10]').val() == majorValueThisStep )
+            {
+                // Register 2 will be shifted, so use the futur value
+                var majorValueNextStepR2 = $('input[name=r2_9]').val();
+
+                // Shift clocked register (do not push a value to register; 0 is the neutral element of XOR)
+                shiftRegister2(0);
+            }
+            else
+            {
+                // Register 2 will not be shifted, so use the current value
+                var majorValueNextStepR2 = $('input[name=r2_10]').val();
+            }
+
+            // Register 3 is clocked?
+            if ( $('input[name=r3_10]').val() == majorValueThisStep )
+            {
+                // Register 3 will be shifted, so use the futur value
+                var majorValueNextStepR3 = $('input[name=r3_9]').val();
+
+                // Shift clocked register (do not push a value to register; 0 is the neutral element of XOR)
+                shiftRegister3(0);
+            }
+            else
+            {
+                // Register 3 will not be shifted, so use the current value
+                var majorValueNextStepR3 = $('input[name=r3_10]').val();
+            }
+
+            // Calculate maj() function for the next step
+            var majorValueNextStep = maj(majorValueNextStepR1, majorValueNextStepR2, majorValueNextStepR3);
+
+            // and update spans
+            $('#majResult').text(majorValueNextStep);
+            $('#maj_x').text(majorValueNextStepR1);
+            $('#maj_y').text(majorValueNextStepR2);
+            $('#maj_z').text(majorValueNextStepR3);
+
+            // Register 1 will be clocked next step?
+            if ( majorValueNextStepR1 == majorValueNextStep )
+            {
+                // Indicate that register 1 will be clocked next step
+                $('#r1').attr('style', 'color: blue;');
+            }
+            else
+            {
+                $('#r1').attr('style', 'color: black;');
+            }
+
+            // Register 2 will be clocked next step?
+            if ( majorValueNextStepR2 == majorValueNextStep )
+            {
+                // Indicate that register 2 will be clocked next step
+                $('#r2').attr('style', 'color: blue;');
+            }
+            else
+            {
+                $('#r2').attr('style', 'color: black;');
+            }
+
+            // Register 3 will be clocked next step?
+            if ( majorValueNextStepR3 == majorValueNextStep )
+            {
+                // Indicate that register 3 will be clocked next step
+                $('#r3').attr('style', 'color: blue;');
+            }
+            else
+            {
+                $('#r3').attr('style', 'color: black;');
+            }
+
+        });
+
+        // This counter is just to group the key stream to 4 bit groups
+        var generatedKeyStreamBitsCounter = 0;
+
+        /*
+         * (3)
+         *
+         * Simulates the key stream generation process.
+         * The cipher key and the register must be initialized to generate a key stream.
+         *
+         */
+        $("#generateStreamButton").click(function()
+        {
+            generatedKeyStreamBitsCounter++;
+            $('#generatedStreamCount').text(generatedKeyStreamBitsCounter);
+
+            // Calculate maj() function for the current step
+            var majorValueThisStep = maj($('input[name=r1_8]').val(), $('input[name=r2_10]').val(), $('input[name=r3_10]').val());
+
+            // Register 1 is clocked?
+            if ( $('input[name=r1_8]').val() == majorValueThisStep )
+            {
+                // Register 1 will be shifted, so use the futur value
+                var majorValueNextStepR1 = $('input[name=r1_7]').val();
+
+                // Shift clocked register (do not push a value to register; 0 is the neutral element of XOR) and get output value for key stream
+                var outputValueRegister1 = shiftRegister1(0);
+            }
+            else
+            {
+                // Register 1 will not be shifted, so use the current value
+                var majorValueNextStepR1 = $('input[name=r1_8]').val();
+
+                // The register is not clocked so the output value is the neutral element of XOR (=0)
+                var outputValueRegister1 = 0;
+            }
+
+            // Register 2 is clocked?
+            if ( $('input[name=r2_10]').val() == majorValueThisStep )
+            {
+                // Register 2 will be shifted, so use the futur value
+                var majorValueNextStepR2 = $('input[name=r2_9]').val();
+
+                // Shift clocked register (do not push a value to register; 0 is the neutral element of XOR) and get output value for key stream
+                var outputValueRegister2 = shiftRegister2(0);
+            }
+            else
+            {
+                // Register 2 will not be shifted, so use the current value
+                var majorValueNextStepR2 = $('input[name=r2_10]').val();
+
+                // The register is not clocked so the output value is the neutral element of XOR (=0)
+                var outputValueRegister2 = 0;
+            }
+
+            // Register 3 is clocked?
+            if ( $('input[name=r3_10]').val() == majorValueThisStep )
+            {
+                // Register 3 will be shifted, so use the futur value
+                var majorValueNextStepR3 = $('input[name=r3_9]').val();
+
+                // Shift clocked register (do not push a value to register; 0 is the neutral element of XOR) and get output value for key stream
+                var outputValueRegister3 = shiftRegister3(0);
+            }
+            else
+            {
+                // Register 3 will not be shifted, so use the current value
+                var majorValueNextStepR3 = $('input[name=r3_10]').val();
+
+                // The register is not clocked so the output value is the neutral element of XOR (=0)
+                var outputValueRegister3 = 0;
+            }
+
+            // Calculate maj() function for the next step
+            var majorValueNextStep = maj(majorValueNextStepR1, majorValueNextStepR2, majorValueNextStepR3);
+
+            // and update spans
+            $('#majResult').text(majorValueNextStep);
+            $('#maj_x').text(majorValueNextStepR1);
+            $('#maj_y').text(majorValueNextStepR2);
+            $('#maj_z').text(majorValueNextStepR3);
+
+            // Register 1 will be clocked next step?
+            if ( majorValueNextStepR1 == majorValueNextStep )
+            {
+                // Indicate that register 1 will be clocked next step
+                $('#r1').attr('style', 'color: blue;');
+            }
+            else
+            {
+                $('#r1').attr('style', 'color: black;');
+            }
+
+            // Register 2 will be clocked next step?
+            if ( majorValueNextStepR2 == majorValueNextStep )
+            {
+                // Indicate that register 2 will be clocked next step
+                $('#r2').attr('style', 'color: blue;');
+            }
+            else
+            {
+                $('#r2').attr('style', 'color: black;');
+            }
+
+            // Register 3 will be clocked next step?
+            if ( majorValueNextStepR3 == majorValueNextStep )
+            {
+                // Indicate that register 3 will be clocked next step
+                $('#r3').attr('style', 'color: blue;');
+            }
+            else
+            {
+                $('#r3').attr('style', 'color: black;');
+            }
+
+            var generatedKeyStreamBit = outputValueRegister1 ^ outputValueRegister2 ^ outputValueRegister3;
+
+            // Output a space after 4 bits to get groups
+            if ( generatedKeyStreamBitsCounter % 4 == 0 && i > 0 )
+            {
+                $('#keystream').append(generatedKeyStreamBit + ' ');
+            }
+            else
+            {
+                $('#keystream').append(generatedKeyStreamBit);
+            }
+
+        });
+
+    </script>
+
+
+</body>
+</html>
+

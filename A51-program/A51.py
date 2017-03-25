@@ -102,20 +102,20 @@ majorityBit = findMajorityBit(data1,data2,data3)
 #Clocking the registers for 100 iterations if the majority bit is same as the offset bit of that register
 for i in range(0,100):
 	pass
-	#print(i)
+	
 	majorityBit = findMajorityBit(data1,data2,data3)
 	#print(majorityBit)
 
 	if(majorityBit == (testBit(data1,8,19))):
-		#print("1 active")
+		
 		data1 = LSFR(data1,[13,16,17,18],19,0,1)
 
 	if(majorityBit == (testBit(data2,10,22))):
-		#print("2 active")
+		
 		data2 = LSFR(data2,[20,21],22,0,1)
 
 	if(majorityBit == (testBit(data3,10,23))):
-		#print("3 active")
+		
 		data3 = LSFR(data3,[7,20,21,22],23,0,1)
 
 
